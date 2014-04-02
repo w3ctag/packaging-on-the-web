@@ -23,6 +23,16 @@ The browser can't work out which additional files to download until it receives 
 
 > *Note: Efficient delivery is the aim of [pipelining in HTTP 1.1](http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html) (and [HTTPbis](http://tools.ietf.org/html/draft-ietf-httpbis-p1-messaging-25#section-6.3.2)) and [multiplexing in HTTP 2.0](http://tools.ietf.org/html/draft-ietf-httpbis-http2-09#section-2.2). These enable multiple requests to be passed, and responded to, over the same persistent connection. But they do not enable the server to deliver content for predicted requests.*
 
+I don't think "they do not enable the server to deliver content for predicted requests" is true. SPDY/HTTP 2.0 have both server push (http://www.igvita.com/2013/06/12/innovating-with-http-2.0-server-push/) and server hint (http://www.chromium.org/spdy/link-headers-and-server-hint). I don't get what these packages buy us over that.  in both cases, you'd need tooling to figure out all of the things that need to go into your 'package'. With push, rather than building an archive and creating an entirely new specification/workflow around understanding that archive, you just send an extra header.  the other benefit of relying on spdy/http2 is that you can control caching on a more granular level.  if one little gif or one js file changes, you dont need to invalidate the entire archive, just that one file.  
+
+It seems like allowing people to combine the benefits of 
+  1. spdy/http2 server push/hints
+  2. serviceWorkers 
+  3. server/build-time tooling
+would allow people to do anything you could do with these packages and would be more of a "extensible web" thing to do.  this kindof feels app-cachey. Maybe I am missing something though, is there something fundamentally that one of these packages could do those 3 could not?
+
+** sorry, I didn't know the best place to put these comments or who to direct them to, so I just put them here. Please, feel free to tell me where a better place to put them would be, or who to address them to, or if you want me to articulate further, or that I am dumb ;) **
+
 > *Note: The `rel=prefetch` link relation prompts the browser to access additional HTML pages that have not yet been requested by the user, but again this is a different facility; there is no such think as prefetching stylesheets, scripts or images as these are already required for the page by the time the browser knows about them.*
 
 > *Note: given that browsers can typically have more than one connection open to a website, and download files in parallel, is there an argument for supporting having multiple packages associated with a given page?*
