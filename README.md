@@ -1,121 +1,12 @@
 # Packaging on the Web
 
-This document describes an approach for creating packages of files for use on the web. The approach is to package them using a new `multipart/package` media type and a `+package` structured syntax. To access packages related to other files on the web, clients that understand packages of files look for a `Link` header or (in HTML documents) a `<link>` element with a new link relation of `package`. Other formats may define format-specific mechanisms for locating related packages.
+This TAG activity aims to provide mechanisms that enable better use of packages on the web, for a variety of reasons:
 
-**This is an unreviewed draft by Jeni Tennison and does not represent official TAG or W3C opinion.**
+  * as a tool for improving performance
+  * as a mechanism for distributing modular components
+  * as a way of providing both data and metadata in a single file
 
-## Requirements
-
-There are two main requirements for packages on the web:
-
-  * efficient delivery of related content on the web
-  * easy distribution of self-contained content
-
-There is also a final cross-cutting requirement: that the solution can be easily and backwards-compatibly deployed on the web.
-  
-### Efficient Delivery
-
-If a user visits `http://www.bbc.co.uk/` they will need to download about 160 files to view the page in its entirety. The HTML page they download at `http://www.bbc.co.uk/` contains references to stylesheets, scripts, images and other files, each of which may contain references to further files themselves.
-
-Delivering a package of these files could be more efficient than delivering individual files. Downloading each file has a connection overhead which is particularly impactful on low-bandwidth mobile devices and on secure connections.
-
-The browser can't work out which additional files to download until it receives the HTML page, but the server could plausibly deliver a package that contains all the required files through a single connection. This would have to work in a backwards compatible way for both older browsers interacting with package-aware servers, and for package-aware clients working with older servers.
-
-> *Note: Efficient delivery is the aim of [pipelining in HTTP 1.1](http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html) (and [HTTPbis](http://tools.ietf.org/html/draft-ietf-httpbis-p1-messaging-25#section-6.3.2)) and [multiplexing in HTTP 2.0](http://tools.ietf.org/html/draft-ietf-httpbis-http2-09#section-2.2). These enable multiple requests to be passed, and responded to, over the same persistent connection. But they do not enable the server to deliver content for predicted requests.*
-
-> *Note: The `rel=prefetch` link relation prompts the browser to access additional HTML pages that have not yet been requested by the user, but again this is a different facility; there is no such think as prefetching stylesheets, scripts or images as these are already required for the page by the time the browser knows about them.*
-
-> *Note: given that browsers can typically have more than one connection open to a website, and download files in parallel, is there an argument for supporting having multiple packages associated with a given page?*
-
-
-### Self-Contained Content
-
-It is sometimes useful to distribute self-contained packages of material. Examples are [Packaged Web Apps](http://www.w3.org/TR/widgets/) or packages of CSV files used within the [Simple Data Format](http://dataprotocols.org/simple-data-format/) or the [DataSet Publishing Language](https://developers.google.com/public-data/). These packages typically contain a manifest file, in a machine readable format (text, JSON or XML), that contains further details and metadata about the files that the package contains.
-
-## Packaging Format
-
-> *Note: For rationale for selecting this above other packaging formats, see 'Rejected Approaches' below.*
-
-The TAG recommends using [multipart media types](http://tools.ietf.org/html/rfc2046#section-5.1) for packaging materials on the web. Specifically we recommend the registration of a new `multipart/package` media type and the registration of a new `+package` structured syntax suffix, per [RFC 6838](http://tools.ietf.org/html/rfc6838#section-6).
-
-Multipart media types are defined in [RFC 2046](http://tools.ietf.org/html/rfc2046#section-5.1). They can contain one or more *body parts*, each comprising:
-
-  * a *boundary*
-  * a number of *header fields*
-  * an empty line
-  * the *content* of the file
-
-> *Ed note: From what I can tell it's possible for the header fields within a multipart response to be anything so long as it follows the normal `Header: Value` syntax used in MIME and HTTP. So this could be a very flexible mechanism for adding metadata.*
-
-The `multipart/mixed` media type places no constraints on which header fields are specified within the multipart file (see the definition of `MIME-part-headers` in [RFC 2045](http://tools.ietf.org/html/rfc2045#section-3)).
-
-The only difference between `multipart/mixed` and `multipart/package` is that the header fields in every body part includes the `Content-Location` header. Further, the values of the `Content-Location` header must all be [absolute-path-relative URLs](http://url.spec.whatwg.org/#concept-absolute-path-relative-url) or [path-relative URLs](http://url.spec.whatwg.org/#concept-path-relative-url). (See Security Considerations later.)
-
-### Fragment Identifiers for Packages
-
-A basic fragment identifier scheme for the `multipart/package` media type is of the form `file=url` where *url* is resolved against the base URL of the package, the part before the fragment in *url* is used to identify a file within the package using the `Content-Location` part header, and any fragment in *url* is used to identify a fragment within that file according to the media type for that file (as given in the `Content-Type` header).
-
-For example, the URL
-
-    http://example.org/path/to/package.pack#file=/home.html%23section1
-    
-refers to the file within `http://example.org/path/to/package.pack` whose `Content-Location` is
-
-    http://example.org/home.html
-
-and more specifically the element with the `id` `section1` within that file. This should be the same as `http://example.org/home.html#section1`.
-
-In general, links should be made directly to files on the web rather than to files within packages. The particular package(s) that a file appears in is an ephemeral phenomenon and not suitable for inclusion in a URL.
-
-### `+package` Structured Suffix
-
-The `+package` structured suffix should be used on other multipart media types that are used for more specialised packages. This is particularly useful for package formats that must contain manifest files in particular formats; these should use the `+package` structured suffix in their media type.
-
-For example, a `multipart/widget+package` media type could specify that a web application package must contain an [`config.xml` configuration document](http://www.w3.org/TR/widgets/#configuration-document) using the `http://www.w3.org/ns/widgets` XML vocabulary as the first file within the package, and that all other files in the package must be listed within this configuration file or ignored.
-
-Clients can treat any file with an unrecognised `+package` media type as if it were a `multipart/package` file.
-
-## Requesting a Package
-
-Packages live on the web just like any other file. Thus it is perfectly possible to request a package directly. For example:
-
-    GET /path/to/package.pack HTTP/1.1
-    Accept: multipart/package,multipart/*,*/*
-
-should result in a response like:
-
-    HTTP/1.1 200 OK
-    Content-Type: multipart/package;boundary=package-boundary
-    
-    ... package content ...
-
-This satisfies the second of the requirements described above, namely the easy distribution of self-contained content. Note that the `boundary` parameter is required for multipart media types as defined in RFC 2046.
-
-To locate a package of representations of related resources, to support the efficient delivery of scripts, stylesheets, images and so on over the web, we recommend the use of a new `package` link relation. This can be used within a `<link>` header in an HTML document:
-
-    <link rel="package" href="/path/to/package.pack">
-
-When the package is not HTML-based (for example if it is defined through a metadata file defined in JSON or XML), the `package` link relation can be used within a `Link` header:
-
-    Link: </path/to/package.pack>; rel="package"
-
-### Processing Packaged Content
-
-Clients that receive packaged content should unpackage by splitting the package on the boundary indicated in the media type. If there was no `Content-Type` header or no `boundary` parameter on the given content type then clients may recover by inferring the boundary from the content of the packaged content.
-
-> *Note: I guess that the `boundary` parameter is required because there were implementations at the time of standardisation that didn't start with `--boundary`. Now it's a real pain as it means multipart files can't be self-contained.*
-
-The `Content-Location`s associated with each packaged file must be resolved relative to the location of the package. If this results in a location that has a different origin from the package, the file must be ignored.
-
-For performance, it is good practice for the first file in the package to be the "root" of the package, referencing all the other files, but this cannot be relied upon by the client as the same package may be used for multiple resources.
-
-Other files may be cached for later use by the client, with headers set as appropriate based  on those provided within the package and within the response to the original request.
-
-## Security Implications
-
-When used with the `Package` header, the goal of a package is to populate a client's cache and prevent it from making additional unnecessary requests. Content from the cache will run with a base URL supplied within the package. If the `Content-Location`s given for the files in a package weren't restricted to the domain that the package is hosted on, `evil.com` could deliver content that it claimed came from `bank.com` and that would then be interpreted as if it did, indeed, come from `bank.com` but that ran scripts inserted by `evil.com`. 
-
-For the same reason, publishers should be careful about the packages that they provide on their site, in just the same way as they should avoid hosting untrusted HTML.
+**The draft specification of our recommended approach is now available at [http://w3ctag.github.io/packaging-on-the-web/](http://w3ctag.github.io/packaging-on-the-web/).**
 
 ## Rejected Approaches
 
