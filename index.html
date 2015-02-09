@@ -404,6 +404,9 @@ Content-Type: application/pdf
         This section defines the Streamable Package Format (SPF) which has the media type <code>application/package</code>.
       </p>
       <p class="note">
+	The term <dfn>streamable</dfn> is used to denote that processing of package does not mandate keeping all individual parts in memory, both for creation and consumption of the package content.
+      </p>
+      <p class="note">
         SPF is designed to be consistent with <a href="http://tools.ietf.org/html/rfc2046#section-5.1">multipart media types</a>. However it is not defined as a <code>multipart/*</code> subtype because these types require the inclusion of a <code>boundary</code> parameter in their media type. Setting this parameter is burdensome in situations when the publisher is not able to configure the server. It is also unnecessary as the boundary can be ascertained from the content of the file.
       </p>
       <p>
