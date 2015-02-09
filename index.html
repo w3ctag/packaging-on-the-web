@@ -99,7 +99,7 @@ var respecConfig = {
       </p>
       <ul>
         <li>
-          <strong>Zips are streamable, but it's a bit of a hack.</strong> The <em>central directory record</em>, which lists the valid files within the zip archive, appears at the <em>end</em> of the zip. It's possible to use per-Entry file names, but conflicts with the central directory record are possible and the cdr is authoritative. Streaming zip files commonly might exascerbate the potentital for mismatched file entries causing different visible behavior between consumers of packages.
+          <strong>Zips are streamable, but it's a bit of a hack.</strong> The <em>central directory record</em>, which lists the valid files within the zip archive, appears at the <em>end</em> of the zip. It's possible to use per-Entry file names, but conflicts with the central directory record are possible and the cdr is authoritative. Streaming zip files commonly might exascerbate the potential for mismatched file entries causing different visible behavior between consumers of packages.
         </li>
         <li>
           <strong>Zips are hard to create well.</strong> Ordering of files within packages can be important. But the typical method to create a zip is simply to use the built-in operating system facility to do so, which gives no control over this ordering.
