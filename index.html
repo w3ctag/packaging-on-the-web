@@ -530,20 +530,20 @@ Content-Type: application/xml
           Applications that process packages SHOULD ignore parts which do not have a <code>Content-Location</code> header, or whose <code>Content-Location</code> header is not a relative URL or is a scheme-relative URL. Such parts contain information about resources from a different origin than the package itself, which might not be trustworthy.
         </p>
         <p>
-          It is possible for multiple parts within a package to have the same <a>part URL</a>, either because they have exactly the same <code>Content-Location</code> header or because their <code>Content-Location</code> headers resolve to the same URL. Parts with the same part URL SHOULD be distinguishable by having different values for other headers commonly used for content negotiation, such as <code>Content-Type</code> or <code>Content-Language</code>. When these headers are used to distinguish between parts, they SHOULD be listed within the <code>Vary</code> header for the parts that share the same part URL. For example:
+          It is possible for multiple parts within a package to have the same <a>part URL</a>, either because they have exactly the same <code>Content-Location</code> header or because their <code>Content-Location</code> headers resolve to the same URL. Parts with the same part URL SHOULD be distinguishable by having different values for other headers commonly used for content negotiation, such as <code>Accept</code> or <code>Accept-Language</code>. When these headers are used to distinguish between parts, they SHOULD be listed within the <code>Vary</code> header for the parts that share the same part URL. For example:
         </p>
         <pre class="example">
 --r 87q0ewahn8o9fqrt0cadkm
 Content-Location: /events/extensible-web-summit-2014
 Content-Type: text/html
-Vary: Content-Type
+Vary: Accept
 
 ... <em>HTML page about the Extensible Web Summit 2014</em> ...
 
 --r 87q0ewahn8o9fqrt0cadkm
 Content-Location: /events/extensible-web-summit-2014
 Content-Type: text/calendar
-Vary: Content-Type
+Vary: Accept
 
 ... <em>iCalendar event for the Extensible Web Summit 2014</em> ...
 
@@ -688,14 +688,14 @@ Link: &lt;/metadata/spending&gt;; rel=describedby
 --ux3pqy9qcpfmqfexptbv43q8p
 Content-Location: /metadata/spending
 Content-Type: text/turtle
-Vary: Content-Type
+Vary: Accept
 
 ... <var>Metadata about the package in Turtle format</var> ...
 
 --ux3pqy9qcpfmqfexptbv43q8p
 Content-Location: /metadata/spending
 Content-Type: application/ld+json
-Vary: Content-Type
+Vary: Accept
 
 ... <var>Metadata about the package in JSON-LD format</var> ...
 
