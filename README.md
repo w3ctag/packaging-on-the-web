@@ -1,7 +1,7 @@
 # NOTE THAT THIS REPOSITORY IS OBSOLETE
 
 The TAG stopped working on that specification.
-Please consult the [WICG WebPackage]{https://github.com/WICG/webpackage} repository for continuing work on this subject.
+Please consult the [WICG WebPackage](https://github.com/WICG/webpackage) repository for continuing work on this subject.
 
 The text below is historical and as been kept for reference.
 
