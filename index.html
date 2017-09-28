@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width,initial-scale=1" name="viewport" />
-    <title>Packaging on the Web</title>
-    <script class="remove" src="//www.w3.org/Tools/respec/respec-w3c-common">
+    <title>Packaging on the Web (OBSOLETE)</title>
+    <script class="remove" src="https://www.w3.org/Tools/respec/respec-w3c-common">
 		</script>
     <script class="remove">
 var respecConfig = {
@@ -51,6 +51,13 @@ var respecConfig = {
     </script>
   </head>
   <body>
+
+<h1>NOTE THAT THIS REPOSITORY IS OBSOLETE</h1>
+
+<p>The TAG stopped working on that specification.
+Please consult the <a href="https://github.com/WICG/webpackage">WICG WebPackage</a> repository for continuing work on this subject.
+</p>
+
     <section id="abstract">
       <p>
         This document describes an approach for creating packages of files for use on the web. The approach is to package them using a new <code>application/package</code> media type. To access packages related to other files on the web, clients that understand packages of files look for a <code>Link</code> header or (in HTML documents) a <code>&lt;link&gt;</code> element with a new link relation of <code>package</code>. Other formats may define format-specific mechanisms for locating related packages.
